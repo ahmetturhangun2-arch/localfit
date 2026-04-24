@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LocalFit Pro{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script defer src="{{ url_for('static', filename='script.js') }}"></script>
+</head>
+<body>
+    <header class="site-header">
+        <div class="container nav-wrap">
+            <a class="brand" href="{{ url_for('dashboard') if session.get('user_id') else url_for('home') }}">LocalFit Pro</a>
+            <nav>
+                {% if session.get('user_id') %}
+                    <a href="{{ url_for('dashboard') }}">Operation Panel</a>
+                    {% if session.get('role') == 'admin' %}
+                        <a href="{{ url_for('admin_panel') }}">Admin</a>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}">Cikis</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">Giris</a>
+                    <a href="{{ url_for('register') }}" class="btn small">Kayit</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main class="container page-space">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-stack">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

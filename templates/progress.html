@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Takip{% endblock %}
+{% block content %}
+<section class="grid two-cols">
+    <div class="card">
+        <h1>Takip Kaydi Ekle</h1>
+        <form method="post" class="form-grid two-columns">
+            <label>Tarih<input type="date" name="log_date"></label>
+            <label>Kilo (kg)<input type="number" step="0.1" name="weight"></label>
+            <label>Bel (cm)<input type="number" step="0.1" name="waist"></label>
+            <label>Gogus (cm)<input type="number" step="0.1" name="chest"></label>
+            <label>Kalca (cm)<input type="number" step="0.1" name="hips"></label>
+            <label>Kol (cm)<input type="number" step="0.1" name="arms"></label>
+            <label>Uyluk (cm)<input type="number" step="0.1" name="thighs"></label>
+            <label class="full">Not<textarea name="notes" rows="3"></textarea></label>
+            <div class="full"><button class="btn" type="submit">Kaydet</button></div>
+        </form>
+    </div>
+    <div class="card">
+        <h2>Ozet</h2>
+        {% if comparison %}
+            <div class="grid two-cols">
+                <div class="stat-card"><strong>{{ comparison.weight }} kg</strong><span class="muted">Kilo farki</span></div>
+                <div class="stat-card"><strong>{{ comparison.waist }} cm</strong><span class="muted">Bel farki</span></div>
+            </div>
+        {% else %}
+            <p class="muted">Ozet icin en az 2 kayit gerekli.</p>
+        {% endif %}
+    </div>
+</section>
+
+<section class="card">
+    <h2>Tum Kayitlar</h2>
+    {% if logs %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tarih</th>
+                        <th>Kilo</th>
+                        <th>Bel</th>
+                        <th>Gogus</th>
+                        <th>Kalca</th>
+                        <th>Kol</th>
+                        <th>Uyluk</th>
+                        <th>Not</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in logs %}
+                        <tr>
+                            <td>{{ row.log_date }}</td>
+                            <td>{{ row.weight or '-' }}</td>
+                            <td>{{ row.waist or '-' }}</td>
+                            <td>{{ row.chest or '-' }}</td>
+                            <td>{{ row.hips or '-' }}</td>
+                            <td>{{ row.arms or '-' }}</td>
+                            <td>{{ row.thighs or '-' }}</td>
+                            <td>{{ row.notes or '-' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="muted">Henuz kayit yok.</p>
+    {% endif %}
+</section>
+{% endblock %}

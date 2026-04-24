@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Plan Gecmisi{% endblock %}
+{% block content %}
+<section class="card">
+    <div class="section-head">
+        <h1>Plan Gecmisi</h1>
+        <a href="{{ url_for('dashboard') }}" class="btn secondary">Panele Don</a>
+    </div>
+    {% if plans %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tarih</th>
+                        <th>Kalori</th>
+                        <th>Makrolar</th>
+                        <th>Islem</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for plan in plans %}
+                        <tr>
+                            <td>#{{ plan.id }}</td>
+                            <td>{{ plan.created_at }}</td>
+                            <td>{{ plan.calorie_target }}</td>
+                            <td>P {{ plan.protein_g }} / K {{ plan.carbs_g }} / Y {{ plan.fats_g }}</td>
+                            <td><a href="{{ url_for('view_plan', plan_id=plan.id) }}">Ac</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="muted">Plan gecmisi bos.</p>
+    {% endif %}
+</section>
+{% endblock %}

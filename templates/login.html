@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Giris{% endblock %}
+{% block content %}
+<section class="auth-card card narrow">
+    <h1>Giris</h1>
+    <form method="post" class="form-grid">
+        <label>E-posta<input type="email" name="email" required></label>
+        <label>Sifre<input type="password" name="password" required></label>
+        <button class="btn" type="submit">Giris Yap</button>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Kayit{% endblock %}
+{% block content %}
+<section class="auth-card card narrow">
+    <h1>Kayit</h1>
+    <form method="post" class="form-grid">
+        <label>Ad Soyad<input type="text" name="full_name" required></label>
+        <label>E-posta<input type="email" name="email" required></label>
+        <label>Sifre<input type="password" name="password" required></label>
+        <button class="btn" type="submit">Hesap Olustur</button>
+    </form>
+</section>
+{% endblock %}

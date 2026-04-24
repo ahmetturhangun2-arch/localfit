@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}LocalFit Pro{% endblock %}
+{% block content %}
+<section class="card">
+    <h1 class="hero-title">Fitness & Nutrition Plan Generator</h1>
+    <p>Musteri bilgilerini gir, kalori hedefini hesapla, diyet ve antrenman planini saniyeler icinde olustur.</p>
+    <div class="hero-actions">
+        <a class="btn" href="{{ url_for('register') }}">Plan Sistemine Basla</a>
+        <a class="btn secondary" href="{{ url_for('login') }}">Giris Yap</a>
+    </div>
+</section>
+
+<section class="grid two-cols">
+    <div class="card">
+        <h2>Akis</h2>
+        <ol class="clean-list compact">
+            <li>Musteri bilgilerini kaydet</li>
+            <li>Tek tikla plan olustur</li>
+            <li>PDF olarak disa aktar</li>
+            <li>Musteriye gonder</li>
+        </ol>
+    </div>
+    <div class="card">
+        <h2>Dahil olanlar</h2>
+        <ul class="clean-list compact">
+            <li>Cok kullanicili giris</li>
+            <li>Plan gecmisi</li>
+            <li>Takip kayitlari</li>
+            <li>Su hedefi ve supplement notu</li>
+            <li>Admin gorunumu</li>
+        </ul>
+        <p class="muted">Varsayilan admin: admin@localfit.com / admin123</p>
+    </div>
+</section>
+{% endblock %}

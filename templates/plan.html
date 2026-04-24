@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}Plan{% endblock %}
+{% block content %}
+<section class="card">
+    <div class="section-head">
+        <div>
+            <h1>Plan #{{ plan.id }}</h1>
+            <p>Olusturulma: {{ plan.created_at }}</p>
+        </div>
+        <a class="btn" href="{{ url_for('download_plan_pdf', plan_id=plan.id) }}">PDF Indir</a>
+    </div>
+    <div class="grid four-cols">
+        <div class="stat-card"><strong>{{ plan.calorie_target }}</strong><span class="muted">Kalori</span></div>
+        <div class="stat-card"><strong>{{ plan.protein_g }} g</strong><span class="muted">Protein</span></div>
+        <div class="stat-card"><strong>{{ plan.carbs_g }} g</strong><span class="muted">Karbonhidrat</span></div>
+        <div class="stat-card"><strong>{{ plan.fats_g }} g</strong><span class="muted">Yag</span></div>
+    </div>
+    <div class="grid three-cols" style="margin-top:12px;">
+        <div class="stat-card"><strong>{{ plan.bmi }}</strong><span class="muted">BMI</span></div>
+        <div class="stat-card"><strong>{{ plan.tdee }}</strong><span class="muted">TDEE</span></div>
+        <div class="stat-card"><strong>{{ plan.water_goal_liters }} L</strong><span class="muted">Su hedefi</span></div>
+    </div>
+</section>
+
+<section class="grid two-cols">
+    <div class="card">
+        <h2>Diyet Plani</h2>
+        <div class="list-stack">
+            {% for meal in plan.meal_plan %}
+                <div class="list-item">
+                    <strong>{{ meal.name }}</strong>
+                    <div>{{ meal.content|safe }}</div>
+                    <small>{{ meal.portion_hint }}</small>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="card">
+        <h2>Alternatif Ogunler</h2>
+        {% for alt in plan.meal_alternatives %}
+            <div class="alt-block">
+                <strong>{{ alt.name }}</strong>
+                <ul class="clean-list compact">
+                    {% for option in alt.options %}
+                        <li>{{ option }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="grid two-cols">
+    <div class="card">
+        <h2>Fitness Programi</h2>
+        {% for day in plan.workout_plan %}
+            <div class="workout-card">
+                <strong>{{ day.day }} - {{ day.title }}</strong>
+                <div class="muted">{{ day.focus }}</div>
+                <ul class="clean-list compact" style="margin-top:8px;">
+                    {% for exercise in day.exercises %}
+                        <li>{{ exercise }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="card">
+        <h2>Supplement ve Notlar</h2>
+        <ul class="clean-list compact">
+            {% for note in plan.supplement_notes %}
+                <li>{{ note }}</li>
+            {% endfor %}
+        </ul>
+        <div class="notice-box">Bu plan genel planlama amaclidir. Saglik problemi veya sakatlik varsa uzman gorusu alinmalidir.</div>
+    </div>
+</section>
+{% endblock %}

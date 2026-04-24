@@ -1,0 +1,267 @@
+{% extends 'base.html' %}
+{% block title %}Operasyon Paneli{% endblock %}
+{% block content %}
+<section class="card compact-hero">
+    <div class="section-head">
+        <div>
+            <h1>Hizli Operasyon Paneli</h1>
+            <p>Bilgi gir, plan uret, PDF indir. Tasarim degil hiz odakli kullanim.</p>
+        </div>
+        <div class="action-row">
+            <form class="inline-form" action="{{ url_for('generate_plan') }}" method="post">
+                <button class="btn" type="submit">Plan Olustur</button>
+            </form>
+            {% if latest_plan %}
+                <a class="btn secondary" href="{{ url_for('download_plan_pdf', plan_id=latest_plan.id) }}">Son Plan PDF</a>
+            {% endif %}
+            {% if session.get('role') == 'admin' %}
+                <a class="btn secondary" href="{{ url_for('admin_panel') }}">Admin</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="quick-grid">
+        <div class="mini-card"><strong>{{ managed_user.full_name if managed_user else session.get('full_name') }}</strong><span class="muted">Aktif musteri</span></div>
+        <div class="mini-card"><strong>{{ plans|length }}</strong><span class="muted">Toplam plan</span></div>
+        <div class="mini-card"><strong>{{ progress|length }}</strong><span class="muted">Takip kaydi</span></div>
+        <div class="mini-card"><strong>{{ plans[0].created_at if plans else '-' }}</strong><span class="muted">Son uretim</span></div>
+    </div>
+</section>
+
+{% if session.get('role') == 'admin' %}
+<section class="grid two-cols">
+    <section class="card">
+        <div class="section-head">
+            <h2>Musteri Sec</h2>
+            <span class="mini-badge">Ajans modu</span>
+        </div>
+        <form method="post" action="{{ url_for('select_client') }}" class="form-grid two-columns dense-form">
+            <label class="full">Aktif musteri
+                <select name="client_user_id" required>
+                    {% for client in clients %}
+                        <option value="{{ client.id }}" {% if managed_user and client.id == managed_user.id %}selected{% endif %}>
+                            {{ client.full_name }} - {{ client.email }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </label>
+            <div class="full"><button class="btn secondary" type="submit">Musteriyi Ac</button></div>
+        </form>
+    </section>
+
+    <section class="card">
+        <div class="section-head">
+            <h2>Yeni Musteri Ac</h2>
+            <span class="muted">Hizli kayit</span>
+        </div>
+        <form method="post" action="{{ url_for('quick_create_client') }}" class="form-grid two-columns dense-form">
+            <label>Ad Soyad<input type="text" name="full_name" required></label>
+            <label>E-posta<input type="email" name="email" placeholder="opsiyonel"></label>
+            <label class="full">Telefon / kisa not<input type="text" name="phone_token" placeholder="opsiyonel"></label>
+            <div class="full"><button class="btn" type="submit">Olustur ve Ac</button></div>
+        </form>
+    </section>
+</section>
+{% endif %}
+
+<section class="grid dashboard-main">
+    <div class="stack-col">
+        <section class="card" id="client-form">
+            <div class="section-head">
+                <div>
+                    <h2>Musteri Bilgisi</h2>
+                    <p class="muted">Aktif kayit: {{ managed_user.full_name if managed_user else '-' }}</p>
+                </div>
+            </div>
+            <form id="profile-form" method="post" action="{{ url_for('profile') }}" class="form-grid two-columns dense-form">
+                <label>Yas<input type="number" name="age" value="{{ profile.age if profile else '' }}" required></label>
+                <label>Cinsiyet
+                    <select name="gender" required>
+                        <option value="">Sec</option>
+                        <option value="male" {% if profile and profile.gender=='male' %}selected{% endif %}>Erkek</option>
+                        <option value="female" {% if profile and profile.gender=='female' %}selected{% endif %}>Kadin</option>
+                    </select>
+                </label>
+                <label>Boy (cm)<input type="number" step="0.1" name="height" value="{{ profile.height if profile else '' }}" required></label>
+                <label>Kilo (kg)<input type="number" step="0.1" name="weight" value="{{ profile.weight if profile else '' }}" required></label>
+                <label>Hedef kilo<input type="number" step="0.1" name="target_weight" value="{{ profile.target_weight if profile else '' }}"></label>
+                <label>Hedef
+                    <select name="goal" required>
+                        <option value="lose" {% if profile and profile.goal=='lose' %}selected{% endif %}>Yag kaybi</option>
+                        <option value="maintain" {% if profile and profile.goal=='maintain' %}selected{% endif %}>Koruma</option>
+                        <option value="recomp" {% if profile and profile.goal=='recomp' %}selected{% endif %}>Recomp</option>
+                        <option value="gain" {% if profile and profile.goal=='gain' %}selected{% endif %}>Kas kazanimi</option>
+                    </select>
+                </label>
+                <label>Aktivite
+                    <select name="activity_level" required>
+                        <option value="sedentary" {% if profile and profile.activity_level=='sedentary' %}selected{% endif %}>Sedanter</option>
+                        <option value="light" {% if profile and profile.activity_level=='light' %}selected{% endif %}>Hafif</option>
+                        <option value="moderate" {% if profile and profile.activity_level=='moderate' %}selected{% endif %}>Orta</option>
+                        <option value="active" {% if profile and profile.activity_level=='active' %}selected{% endif %}>Aktif</option>
+                        <option value="very_active" {% if profile and profile.activity_level=='very_active' %}selected{% endif %}>Cok aktif</option>
+                    </select>
+                </label>
+                <label>Seviye
+                    <select name="experience_level" required>
+                        <option value="beginner" {% if profile and profile.experience_level=='beginner' %}selected{% endif %}>Baslangic</option>
+                        <option value="intermediate" {% if profile and profile.experience_level=='intermediate' %}selected{% endif %}>Orta</option>
+                        <option value="advanced" {% if profile and profile.experience_level=='advanced' %}selected{% endif %}>Ileri</option>
+                    </select>
+                </label>
+                <label>Haftalik gun<input type="number" name="workout_days" min="2" max="6" value="{{ profile.workout_days if profile else 4 }}" required></label>
+                <label>Ekipman
+                    <select name="equipment" required>
+                        <option value="gym" {% if profile and profile.equipment=='gym' %}selected{% endif %}>Salon</option>
+                        <option value="home" {% if profile and profile.equipment=='home' %}selected{% endif %}>Ev</option>
+                        <option value="bodyweight" {% if profile and profile.equipment=='bodyweight' %}selected{% endif %}>Ekipmansiz</option>
+                    </select>
+                </label>
+                <label>Beslenme
+                    <select name="diet_preference" required>
+                        <option value="balanced" {% if profile and profile.diet_preference=='balanced' %}selected{% endif %}>Normal</option>
+                        <option value="vegetarian" {% if profile and profile.diet_preference=='vegetarian' %}selected{% endif %}>Vejetaryen</option>
+                        <option value="vegan" {% if profile and profile.diet_preference=='vegan' %}selected{% endif %}>Vegan</option>
+                    </select>
+                </label>
+                <label>Ogun sayisi<input type="number" name="meals_per_day" min="3" max="6" value="{{ profile.meals_per_day if profile else 4 }}" required></label>
+                <label>Su hedefi (L)<input type="number" step="0.1" name="water_goal_liters" value="{{ profile.water_goal_liters if profile else '' }}"></label>
+                <label>Uyku<input type="number" step="0.5" name="sleep_hours" value="{{ profile.sleep_hours if profile else '' }}"></label>
+                <label>Supplement
+                    <select name="supplement_preference">
+                        <option value="simple" {% if profile and profile.supplement_preference=='simple' %}selected{% endif %}>Basit</option>
+                        <option value="performance" {% if profile and profile.supplement_preference=='performance' %}selected{% endif %}>Performans</option>
+                        <option value="none" {% if profile and profile.supplement_preference=='none' %}selected{% endif %}>Yok</option>
+                    </select>
+                </label>
+                <label class="full">Sakatlik / kisit<textarea name="injuries" rows="2">{{ profile.injuries if profile else '' }}</textarea></label>
+                <label class="full">Saglik notu<textarea name="health_notes" rows="2">{{ profile.health_notes if profile else '' }}</textarea></label>
+            </form>
+            <div class="action-row panel-bottom-actions">
+                <button class="btn secondary" type="submit" form="profile-form">Bilgileri Kaydet</button>
+                <button class="btn" type="submit" form="profile-form" formaction="{{ url_for('generate_plan') }}" formmethod="post">Kaydet ve Plan Olustur</button>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="section-head">
+                <h2>Takip Ekle</h2>
+                {% if comparison %}
+                    <div class="action-row">
+                        <span class="mini-badge">Kilo farki: {{ comparison.weight if comparison.weight is not none else '-' }} kg</span>
+                        <span class="mini-badge">Bel farki: {{ comparison.waist if comparison.waist is not none else '-' }} cm</span>
+                    </div>
+                {% endif %}
+            </div>
+            <form method="post" action="{{ url_for('progress') }}" class="form-grid two-columns dense-form">
+                <label>Tarih<input type="date" name="log_date"></label>
+                <label>Kilo<input type="number" step="0.1" name="weight"></label>
+                <label>Bel<input type="number" step="0.1" name="waist"></label>
+                <label>Gogus<input type="number" step="0.1" name="chest"></label>
+                <label>Kalca<input type="number" step="0.1" name="hips"></label>
+                <label>Kol<input type="number" step="0.1" name="arms"></label>
+                <label>Uyluk<input type="number" step="0.1" name="thighs"></label>
+                <label class="full">Not<textarea name="notes" rows="2"></textarea></label>
+                <div class="full"><button class="btn secondary" type="submit">Takip Kaydet</button></div>
+            </form>
+            {% if progress %}
+                <div class="table-wrap compact-table" style="margin-top:12px;">
+                    <table>
+                        <thead>
+                            <tr><th>Tarih</th><th>Kilo</th><th>Bel</th><th>Not</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for row in progress[:6] %}
+                                <tr>
+                                    <td>{{ row.log_date }}</td>
+                                    <td>{{ row.weight or '-' }}</td>
+                                    <td>{{ row.waist or '-' }}</td>
+                                    <td>{{ row.notes or '-' }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="muted">Henuz takip kaydi yok.</p>
+            {% endif %}
+        </section>
+    </div>
+
+    <div class="stack-col">
+        <section class="card">
+            <div class="section-head">
+                <h2>Son Plan Onizleme</h2>
+                {% if latest_plan %}
+                    <div class="action-row">
+                        <a class="btn secondary" href="{{ url_for('view_plan', plan_id=latest_plan.id) }}">Detay Ac</a>
+                        <a class="btn secondary" href="{{ url_for('download_plan_pdf', plan_id=latest_plan.id) }}">PDF</a>
+                    </div>
+                {% endif %}
+            </div>
+            {% if latest_plan %}
+                <div class="grid four-cols stats-tight">
+                    <div class="stat-card"><strong>{{ latest_plan.calorie_target }}</strong><span class="muted">Kalori</span></div>
+                    <div class="stat-card"><strong>{{ latest_plan.protein_g }} g</strong><span class="muted">Protein</span></div>
+                    <div class="stat-card"><strong>{{ latest_plan.carbs_g }} g</strong><span class="muted">Karbonhidrat</span></div>
+                    <div class="stat-card"><strong>{{ latest_plan.fats_g }} g</strong><span class="muted">Yag</span></div>
+                </div>
+                <div class="grid two-cols" style="margin-top:12px;">
+                    <div class="card subcard">
+                        <h3>Ogun Ozeti</h3>
+                        <div class="list-stack">
+                            {% for meal in latest_plan.meal_plan[:4] %}
+                                <div class="list-item">
+                                    <strong>{{ meal.name }}</strong>
+                                    <div>{{ meal.content|safe }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="card subcard">
+                        <h3>Antrenman Ozeti</h3>
+                        <div class="list-stack">
+                            {% for day in latest_plan.workout_plan[:4] %}
+                                <div class="list-item">
+                                    <strong>{{ day.day }} - {{ day.title }}</strong>
+                                    <div>{{ day.focus }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <p class="muted">Henuz plan uretilmedi. Musteri bilgilerini kaydet ve plan olustur.</p>
+            {% endif %}
+        </section>
+
+        <section class="card">
+            <div class="section-head">
+                <h2>Plan Gecmisi</h2>
+                <a class="btn secondary" href="{{ url_for('history') }}">Tumunu Ac</a>
+            </div>
+            {% if plans %}
+                <div class="table-wrap compact-table">
+                    <table>
+                        <thead>
+                            <tr><th>ID</th><th>Tarih</th><th>Kalori</th><th>Makro</th><th></th></tr>
+                        </thead>
+                        <tbody>
+                            {% for plan in plans[:8] %}
+                                <tr>
+                                    <td>#{{ plan.id }}</td>
+                                    <td>{{ plan.created_at }}</td>
+                                    <td>{{ plan.calorie_target }}</td>
+                                    <td>P {{ plan.protein_g }} / K {{ plan.carbs_g }} / Y {{ plan.fats_g }}</td>
+                                    <td><a href="{{ url_for('view_plan', plan_id=plan.id) }}">Ac</a></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="muted">Plan gecmisi bos.</p>
+            {% endif %}
+        </section>
+    </div>
+</section>
+{% endblock %}
